@@ -135,3 +135,24 @@ string Algorithm::longestPalindrome(const string& s) {
     __android_log_print(ANDROID_LOG_INFO, "wkpzs", "start: %d, end: %d", start, end);
     return s.substr(start, end - start + 1);
 }
+
+string Algorithm::convert(string s, int numRows) {
+    if (numRows == 1) {
+        return s;
+    }
+    vector<string> rows(min(numRows, int(s.size())));
+    int curRow = 0;
+    bool goingDown = false;
+    for (char c : s) {
+        rows[curRow] += c;
+        if (curRow == 0 || curRow == numRows - 1) {
+            goingDown = !goingDown;
+        }
+        curRow += goingDown ? 1 : -1;
+    }
+    string result;
+    for (const string& row : rows) {
+        result += row;
+    }
+    return result;
+}

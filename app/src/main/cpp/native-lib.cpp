@@ -92,3 +92,16 @@ Java_com_wkp_algorithm_Algorithm_longestPalindrome(JNIEnv *env, jobject thiz, js
     const string &result = Algorithm::longestPalindrome(cs);
     return env->NewStringUTF(result.c_str());
 }
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_com_wkp_algorithm_Algorithm_convert(JNIEnv *env, jobject thiz, jstring s, jint num_rows) {
+    int length = env->GetStringLength(s);
+    char cs[length + 1];
+    cs[length] = '\0';
+    const char *temp = env->GetStringUTFChars(s, JNI_FALSE);
+    strncpy(cs, temp, length);
+    env->ReleaseStringUTFChars(s, temp);
+    const string &result = Algorithm::convert(cs, num_rows);
+    return env->NewStringUTF(result.c_str());
+}

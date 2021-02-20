@@ -21,5 +21,7 @@ public:
     static double findMedianSortedArrays(vector<int> &nums1, vector<int> &nums2);
 
     static string longestPalindrome(const string& s);
+
+    static string convert(string s, int numRows);
 };
 #endif //ALGORITHM_ALGORITHM_H

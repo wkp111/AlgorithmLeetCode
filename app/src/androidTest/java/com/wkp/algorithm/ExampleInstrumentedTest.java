@@ -69,4 +69,11 @@ public class ExampleInstrumentedTest {
         String result = algorithm.longestPalindrome("cbbd");
         System.out.println("wkpzs result: " + result);
     }
+
+    @Test
+    public void convert() {
+        Algorithm algorithm = new Algorithm();
+        String convert = algorithm.convert("PAYPALISHIRING", 4);
+        System.out.println("wkpzs convert: " + convert);
+    }
 }
