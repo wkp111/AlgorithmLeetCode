@@ -106,3 +106,10 @@ JNIEXPORT jint JNICALL
 Java_com_wkp_algorithm_Algorithm_reverse(JNIEnv *env, jobject thiz, jint x) {
     return Algorithm::reverse(x);
 }
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_wkp_algorithm_Algorithm_isPalindrome(JNIEnv *env, jobject thiz, jint x) {
+    bool palindrome = Algorithm::isPalindrome(x);
+    return palindrome ? JNI_TRUE : JNI_FALSE;
+}

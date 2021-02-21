@@ -25,5 +25,7 @@ public:
     static string convert(string s, int numRows);
 
     static int reverse(int x);
+
+    static bool isPalindrome(int x);
 };
 #endif //ALGORITHM_ALGORITHM_H

@@ -83,4 +83,11 @@ public class ExampleInstrumentedTest {
         int reverse = algorithm.reverse(123);
         System.out.println("wkpzs reverse: " + reverse);
     }
+
+    @Test
+    public void isPalindrome() {
+        Algorithm algorithm = new Algorithm();
+        boolean palindrome = algorithm.isPalindrome(121);
+        System.out.println("wkpzs palindrome: " + palindrome);
+    }
 }
