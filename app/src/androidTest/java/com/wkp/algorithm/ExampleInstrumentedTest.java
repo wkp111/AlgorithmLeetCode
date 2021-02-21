@@ -76,4 +76,11 @@ public class ExampleInstrumentedTest {
         String convert = algorithm.convert("PAYPALISHIRING", 4);
         System.out.println("wkpzs convert: " + convert);
     }
+
+    @Test
+    public void reverse() {
+        Algorithm algorithm = new Algorithm();
+        int reverse = algorithm.reverse(123);
+        System.out.println("wkpzs reverse: " + reverse);
+    }
 }

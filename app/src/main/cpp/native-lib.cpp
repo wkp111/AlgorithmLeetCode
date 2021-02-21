@@ -53,15 +53,20 @@ Java_com_wkp_algorithm_Algorithm_addTwoNumbers(JNIEnv *env, jobject thiz, jobjec
     return transform_java_listNode(env, result);
 }
 
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_wkp_algorithm_Algorithm_lengthOfLongestSubstring(JNIEnv *env, jobject thiz, jstring s) {
+string transform_c_string(JNIEnv *env, jstring s){
     int length = env->GetStringLength(s);
     char cs[length + 1];
     cs[length] = '\0';
     const char *temp = env->GetStringUTFChars(s, JNI_FALSE);
     strncpy(cs, temp, length);
     env->ReleaseStringUTFChars(s, temp);
+    return cs;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_wkp_algorithm_Algorithm_lengthOfLongestSubstring(JNIEnv *env, jobject thiz, jstring s) {
+    const string &cs = transform_c_string(env, s);
     int result = Algorithm::lengthOfLongestSubstring(cs);
     return result;
 }
@@ -83,12 +88,7 @@ Java_com_wkp_algorithm_Algorithm_findMedianSortedArrays(JNIEnv *env, jobject thi
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_wkp_algorithm_Algorithm_longestPalindrome(JNIEnv *env, jobject thiz, jstring s) {
-    int length = env->GetStringLength(s);
-    char cs[length + 1];
-    cs[length] = '\0';
-    const char *temp = env->GetStringUTFChars(s, JNI_FALSE);
-    strncpy(cs, temp, length);
-    env->ReleaseStringUTFChars(s, temp);
+    const string &cs = transform_c_string(env, s);
     const string &result = Algorithm::longestPalindrome(cs);
     return env->NewStringUTF(result.c_str());
 }
@@ -96,12 +96,13 @@ Java_com_wkp_algorithm_Algorithm_longestPalindrome(JNIEnv *env, jobject thiz, js
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_com_wkp_algorithm_Algorithm_convert(JNIEnv *env, jobject thiz, jstring s, jint num_rows) {
-    int length = env->GetStringLength(s);
-    char cs[length + 1];
-    cs[length] = '\0';
-    const char *temp = env->GetStringUTFChars(s, JNI_FALSE);
-    strncpy(cs, temp, length);
-    env->ReleaseStringUTFChars(s, temp);
+    const string &cs = transform_c_string(env, s);
     const string &result = Algorithm::convert(cs, num_rows);
     return env->NewStringUTF(result.c_str());
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_wkp_algorithm_Algorithm_reverse(JNIEnv *env, jobject thiz, jint x) {
+    return Algorithm::reverse(x);
 }
