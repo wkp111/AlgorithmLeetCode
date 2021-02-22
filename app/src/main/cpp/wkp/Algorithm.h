@@ -27,5 +27,7 @@ public:
     static int reverse(int x);
 
     static bool isPalindrome(int x);
+
+    static bool isMatch(string s, string p);
 };
 #endif //ALGORITHM_ALGORITHM_H

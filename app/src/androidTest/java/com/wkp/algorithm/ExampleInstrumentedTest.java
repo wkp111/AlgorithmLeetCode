@@ -90,4 +90,11 @@ public class ExampleInstrumentedTest {
         boolean palindrome = algorithm.isPalindrome(121);
         System.out.println("wkpzs palindrome: " + palindrome);
     }
+
+    @Test
+    public void isMatch() {
+        Algorithm algorithm = new Algorithm();
+        boolean match = algorithm.isMatch("aab", "c*a*b");
+        System.out.println("wkpzs match: " + match);
+    }
 }

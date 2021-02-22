@@ -113,3 +113,12 @@ Java_com_wkp_algorithm_Algorithm_isPalindrome(JNIEnv *env, jobject thiz, jint x)
     bool palindrome = Algorithm::isPalindrome(x);
     return palindrome ? JNI_TRUE : JNI_FALSE;
 }
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_wkp_algorithm_Algorithm_isMatch(JNIEnv *env, jobject thiz, jstring s, jstring p) {
+    const string &cs = transform_c_string(env, s);
+    const string &cp = transform_c_string(env, p);
+    bool match = Algorithm::isMatch(cs, cp);
+    return match ? JNI_TRUE : JNI_FALSE;
+}
