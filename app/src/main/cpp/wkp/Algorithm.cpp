@@ -3,6 +3,7 @@
 //
 #include <map>
 #include <string>
+#include <queue>
 #include "Algorithm.h"
 #include "android/log.h"
 
@@ -175,6 +176,44 @@ int Algorithm::reverse(int x) {
     return rev;
 }
 
+int Algorithm::myAtoi(string s) {
+    if (s.empty()){
+        return 0;
+    }
+    int size = s.size();
+    int index = 0;
+    while (index < size && s[index] == ' ') {
+        index++;
+    }
+    if (index == size){
+        return 0;
+    }
+    int sign = 1;
+    if (s[index] == '+') {
+        index++;
+    } else if (s[index] == '-') {
+        index++;
+        sign = -1;
+    }
+    int res = 0;
+    int max = INT_MAX / 10;
+    int min = INT_MIN / 10;
+    for (int i = index; i < size; ++i) {
+        if (s[i] > '9' || s[i] < '0') {
+            break;
+        }
+        int num = s[i] - '0';
+        if (res > max || (res == max && num > 7)){
+            return INT_MAX;
+        }
+        if (res < min || (res == min && num > 8)){
+            return INT_MIN;
+        }
+        res = res * 10 + sign * num;
+    }
+    return res;
+}
+
 bool Algorithm::isPalindrome(int x) {
     if (x < 0 || (x % 10 == 0 && x != 0)) {
         return false;
@@ -216,4 +255,191 @@ bool Algorithm::isMatch(string s, string p) {
         }
     }
     return f[m][n];
+}
+
+int Algorithm::trap(vector<int> &height) {
+    int left = 0, right = height.size() - 1;
+    int ans = 0;
+    int left_max = 0, right_max = 0;
+    while (left < right) {
+        if (height[left] < height[right]) {
+            (height[left] >= left_max) ? (left_max = height[left]) : (ans += (left_max - height[left]));
+            left++;
+        } else {
+            (height[right] >= right_max) ? (right_max = height[right]) : (ans += (right_max - height[right]));
+            right--;
+        }
+    }
+    return ans;
+}
+
+bool Algorithm::canJump(vector<int> &nums) {
+    int mostJump = 0;
+    int length = nums.size();
+    for (int i = 0; i < length; ++i) {
+        if (i <= mostJump) {
+            mostJump = max(mostJump, i + nums[i]);
+            if (mostJump >= length - 1) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int Algorithm::maxProfit1(vector<int> &prices) {
+    if (prices.empty()) {
+        return 0;
+    }
+    int maxProfit = 0;
+    int minPrice = INT_MAX;
+    for (int price : prices) {
+        if (price < minPrice) {
+            minPrice = price;
+        } else if (price - minPrice > maxProfit) {
+            maxProfit = price - minPrice;
+        }
+    }
+    return maxProfit;
+}
+
+int Algorithm::maxProfit2(vector<int> &prices) {
+    if (prices.empty()) {
+        return 0;
+    }
+    int maxProfit = 0;
+    for (int i = 1; i < prices.size(); ++i) {
+        if (prices[i] > prices[i - 1]) {
+            maxProfit += prices[i] - prices[i - 1];
+        }
+    }
+    return maxProfit;
+}
+
+int Algorithm::maxProfit3(vector<int> &prices) {
+    if (prices.empty()) {
+        return 0;
+    }
+    int buy1 = -prices[0], sell1 = 0;
+    int buy2 = -prices[0], sell2 = 0;
+    for (int i = 1; i < prices.size(); ++i) {
+        buy1 = max(buy1, -prices[i]);
+        sell1 = max(sell1, buy1 + prices[i]);
+        buy2 = max(buy2, sell1 - prices[i]);
+        sell2 = max(sell2, buy2 + prices[i]);
+    }
+    return sell2;
+}
+
+bool Algorithm::lemonadeChange(vector<int> &bills) {
+    int five = 0, ten = 0;
+    for (int bill : bills) {
+        if (bill == 5) {
+            five++;
+        } else if (bill == 10){
+            if (five == 0){
+                return false;
+            }
+            five--;
+            ten++;
+        } else {
+            if (ten > 0 && five > 0){
+                ten--;
+                five--;
+            } else if (five >= 3){
+                five -= 3;
+            } else {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void Algorithm::merge(vector<int> &A, int m, vector<int> &B, int n) {
+    int pa = m - 1, pb = n - 1;
+    int tail = m + n - 1;
+    int cur;
+    while (pa >= 0 || pb >= 0) {
+        if (pa == -1){
+            cur = B[pb--];
+        } else if (pb == -1){
+            cur = A[pa--];
+        } else if (A[pa] > B[pb]) {
+            cur = A[pa--];
+        } else {
+            cur = B[pb--];
+        }
+        A[tail--] = cur;
+    }
+}
+
+int Algorithm::cuttingRope(int n) {
+    if (n <= 3){
+        return n - 1;
+    }
+    int a = n / 3, b = n % 3;
+    if (b== 0) return (int)pow(3, a);
+    if (b== 1) return (int)pow(3, a - 1) * 4;
+    return (int)pow(3, a) * 2;
+}
+
+ListNode *Algorithm::getIntersectionNode(ListNode *headA, ListNode *headB) {
+    ListNode *p1 = headA;
+    ListNode *p2 = headB;
+    while (p1 != p2) {
+        p1 = p1 != nullptr ? p1->next : headB;
+        p2 = p2 != nullptr ? p2->next : headA;
+    }
+    return p2;
+}
+
+vector<vector<int>> Algorithm::levelOrder(TreeNode *root) {
+    vector<vector<int>> ret;
+    if(!root){
+        return ret;
+    }
+    queue<TreeNode*> q;
+    q.push(root);
+    while (!q.empty()) {
+        ret.emplace_back();
+        int currentLevelSize = q.size();
+        for (int i = 1; i <= currentLevelSize; ++i) {
+            auto node = q.front();
+            q.pop();
+            ret.back().push_back(node->val);
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+    }
+    return ret;
+}
+
+vector<vector<int>> Algorithm::zigzagLevelOrder(TreeNode *root) {
+    vector<vector<int>> ret;
+    if (!root) {
+        return ret;
+    }
+    queue<TreeNode*> q;
+    q.push(root);
+    bool left2Right = true;
+    int curLevelSize;
+    while (!q.empty()) {
+        curLevelSize = q.size();
+        ret.emplace_back();
+        vector<int> &level = ret.back();
+        for (int i = 0; i < curLevelSize; ++i) {
+            auto node = q.front();
+            q.pop();
+            if (left2Right) {
+                level.push_back(node->val);
+            } else {
+                level.insert(level.begin(), node->val);
+            }
+            if (node->left) q.push(node->left);
+            if (node->right) q.push(node->right);
+        }
+        left2Right = !left2Right;
+    }
+    return ret;
 }

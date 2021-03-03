@@ -1,9 +1,16 @@
 #include <jni.h>
 #include <string>
 #include "wkp/Algorithm.h"
+#include "android/log.h"
 
 ListNode* transform_c_listNode(JNIEnv *env, jobject listNode);
 jobject transform_java_listNode(JNIEnv *env, ListNode *listNode);
+string transform_c_string(JNIEnv *env, jstring s);
+vector<int> transform_c_int_array(JNIEnv *env, jintArray array);
+jobject transform_java_int_list(JNIEnv *env, const vector<int>& array);
+jobject transform_java_int_list_list(JNIEnv *env, const vector<vector<int>>& array);
+TreeNode *transform_c_treeNode(JNIEnv *env, jobject treeNode);
+jobject transform_java_treeNode(JNIEnv *env, TreeNode *treeNode);
 
 extern "C"
 JNIEXPORT jintArray JNICALL
@@ -33,6 +40,9 @@ ListNode* transform_c_listNode(JNIEnv *env, jobject listNode) {
 }
 
 jobject transform_java_listNode(JNIEnv *env, ListNode *listNode){
+    if (!listNode) {
+        return nullptr;
+    }
     jclass nodeClass = env->FindClass("com/wkp/algorithm/ListNode");
     jfieldID valId = env->GetFieldID(nodeClass, "val", "I");
     jfieldID nextId = env->GetFieldID(nodeClass, "next", "Lcom/wkp/algorithm/ListNode;");
@@ -108,6 +118,13 @@ Java_com_wkp_algorithm_Algorithm_reverse(JNIEnv *env, jobject thiz, jint x) {
 }
 
 extern "C"
+JNIEXPORT jint JNICALL
+Java_com_wkp_algorithm_Algorithm_myAtoi(JNIEnv *env, jobject thiz, jstring s) {
+    const string &cs = transform_c_string(env, s);
+    return Algorithm::myAtoi(cs);
+}
+
+extern "C"
 JNIEXPORT jboolean JNICALL
 Java_com_wkp_algorithm_Algorithm_isPalindrome(JNIEnv *env, jobject thiz, jint x) {
     bool palindrome = Algorithm::isPalindrome(x);
@@ -121,4 +138,162 @@ Java_com_wkp_algorithm_Algorithm_isMatch(JNIEnv *env, jobject thiz, jstring s, j
     const string &cp = transform_c_string(env, p);
     bool match = Algorithm::isMatch(cs, cp);
     return match ? JNI_TRUE : JNI_FALSE;
+}
+
+vector<int> transform_c_int_array(JNIEnv *env, jintArray array) {
+    jsize length = env->GetArrayLength(array);
+    vector<int> c_array(length);
+    env->GetIntArrayRegion(array, 0, length, &c_array[0]);
+    return c_array;
+}
+
+jobject transform_java_int_list(JNIEnv *env, const vector<int>& array){
+    jclass listCls = env->FindClass("java/util/ArrayList");
+    jmethodID addId = env->GetMethodID(listCls, "add", "(Ljava/lang/Object;)Z");
+    jmethodID initId = env->GetMethodID(listCls, "<init>", "()V");
+    jobject list = env->NewObject(listCls, initId);
+    jclass intCls = env->FindClass("java/lang/Integer");
+    jmethodID intId = env->GetMethodID(intCls, "<init>", "(I)V");
+    for (int val : array) {
+        jobject intObj = env->NewObject(intCls, intId, val);
+        env->CallBooleanMethod(list, addId, intObj);
+    }
+    return list;
+}
+
+jobject transform_java_int_list_list(JNIEnv *env, const vector<vector<int>>& array){
+    jclass listCls = env->FindClass("java/util/ArrayList");
+    jmethodID addId = env->GetMethodID(listCls, "add", "(Ljava/lang/Object;)Z");
+    jmethodID initId = env->GetMethodID(listCls, "<init>", "()V");
+    jobject list = env->NewObject(listCls, initId);
+    for (const vector<int>& vec : array) {
+        jobject intList = transform_java_int_list(env, vec);
+        env->CallBooleanMethod(list, addId, intList);
+    }
+    return list;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_wkp_algorithm_Algorithm_trap(JNIEnv *env, jobject thiz, jintArray height) {
+    vector<int> c_height = transform_c_int_array(env, height);
+    return Algorithm::trap(c_height);
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_wkp_algorithm_Algorithm_canJump(JNIEnv *env, jobject thiz, jintArray nums) {
+    vector<int> c_nums = transform_c_int_array(env, nums);
+    bool jump = Algorithm::canJump(c_nums);
+    return jump ? JNI_TRUE : JNI_FALSE;
+}
+
+TreeNode* transform_c_treeNode(JNIEnv *env, jobject treeNode) {
+    jclass nodeClass = env->FindClass("com/wkp/algorithm/TreeNode");
+    jfieldID valId = env->GetFieldID(nodeClass, "val", "I");
+    jfieldID leftId = env->GetFieldID(nodeClass, "left", "Lcom/wkp/algorithm/TreeNode;");
+    jfieldID rightId = env->GetFieldID(nodeClass, "right", "Lcom/wkp/algorithm/TreeNode;");
+    jint val = env->GetIntField(treeNode, valId);
+    auto *result = static_cast<TreeNode *>(malloc(sizeof(TreeNode)));
+    result->val = val;
+    result->left = NULL;
+    result->right = NULL;
+    jobject left = env->GetObjectField(treeNode, leftId);
+    if (left) {
+        result->left = transform_c_treeNode(env, left);
+    }
+    jobject right = env->GetObjectField(treeNode, rightId);
+    if (right) {
+        result->right = transform_c_treeNode(env, right);
+    }
+    return result;
+}
+
+jobject transform_java_treeNode(JNIEnv *env, TreeNode *treeNode) {
+    if (!treeNode) {
+        return nullptr;
+    }
+    jclass nodeClass = env->FindClass("com/wkp/algorithm/TreeNode");
+    jfieldID valId = env->GetFieldID(nodeClass, "val", "I");
+    jfieldID leftId = env->GetFieldID(nodeClass, "left", "Lcom/wkp/algorithm/TreeNode;");
+    jfieldID rightId = env->GetFieldID(nodeClass, "right", "Lcom/wkp/algorithm/TreeNode;");
+    jobject result = env->AllocObject(nodeClass);
+    env->SetIntField(result, valId, treeNode->val);
+    if (treeNode->left) {
+        env->SetObjectField(result, leftId, transform_java_treeNode(env, treeNode->left));
+    }
+    if (treeNode->right) {
+        env->SetObjectField(result, rightId, transform_java_treeNode(env, treeNode->right));
+    }
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_wkp_algorithm_Algorithm_levelOrder(JNIEnv *env, jobject thiz, jobject root) {
+    TreeNode *c_root = transform_c_treeNode(env, root);
+    const vector<vector<int>> &order = Algorithm::levelOrder(c_root);
+    return transform_java_int_list_list(env, order);
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_wkp_algorithm_Algorithm_zigzagLevelOrder(JNIEnv *env, jobject thiz, jobject root) {
+    TreeNode *c_root = transform_c_treeNode(env, root);
+    const vector<vector<int>> &order = Algorithm::zigzagLevelOrder(c_root);
+    return transform_java_int_list_list(env, order);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_wkp_algorithm_Algorithm_maxProfit1(JNIEnv *env, jobject thiz, jintArray prices) {
+    vector<int> c_prices = transform_c_int_array(env, prices);
+    return Algorithm::maxProfit1(c_prices);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_wkp_algorithm_Algorithm_maxProfit2(JNIEnv *env, jobject thiz, jintArray prices) {
+    vector<int> c_prices = transform_c_int_array(env, prices);
+    return Algorithm::maxProfit2(c_prices);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_wkp_algorithm_Algorithm_maxProfit3(JNIEnv *env, jobject thiz, jintArray prices) {
+    vector<int> c_prices = transform_c_int_array(env, prices);
+    return Algorithm::maxProfit3(c_prices);
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_com_wkp_algorithm_Algorithm_lemonadeChange(JNIEnv *env, jobject thiz, jintArray bills) {
+    vector<int> c_bills = transform_c_int_array(env, bills);
+    bool change = Algorithm::lemonadeChange(c_bills);
+    return change ? JNI_TRUE : JNI_FALSE;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_wkp_algorithm_Algorithm_merge(JNIEnv *env, jobject thiz, jintArray a, jint m, jintArray b,
+                                       jint n) {
+    vector<int> c_a = transform_c_int_array(env, a);
+    vector<int> c_b = transform_c_int_array(env, b);
+    Algorithm::merge(c_a, m, c_b, n);
+    env->SetIntArrayRegion(a, 0, c_a.size(), &c_a[0]);
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_wkp_algorithm_Algorithm_cuttingRope(JNIEnv *env, jobject thiz, jint n) {
+    return Algorithm::cuttingRope(n);
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL
+Java_com_wkp_algorithm_Algorithm_getIntersectionNode(JNIEnv *env, jobject thiz, jobject head_a,
+                                                     jobject head_b) {
+    ListNode *c_head_a = transform_c_listNode(env, head_a);
+    ListNode *c_head_b = transform_c_listNode(env, head_b);
+    ListNode *intersectionNode = Algorithm::getIntersectionNode(c_head_a, c_head_b);
+    return transform_java_listNode(env, intersectionNode);
 }
